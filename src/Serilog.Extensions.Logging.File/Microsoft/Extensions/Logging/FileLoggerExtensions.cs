@@ -57,6 +57,8 @@ namespace Microsoft.Extensions.Logging
         /// "{Timestamp:o} {RequestId,13} [{Level:u3}] {Message} ({EventId:x8}){NewLine}{Exception}"</param>
         /// <param name="rollOnFileSizeLimit">Create new log file when the size limit is reached.
         /// The default is true</param>
+        /// <param name="rollingInterval">Time interval for rolling file.
+        /// The default is RollingInterval.Day</param>
         /// <returns>A logger factory to allow further configuration.</returns>
         public static ILoggerFactory AddFile(
             this ILoggerFactory loggerFactory,
@@ -67,9 +69,10 @@ namespace Microsoft.Extensions.Logging
             long? fileSizeLimitBytes = FileLoggingConfiguration.DefaultFileSizeLimitBytes,
             int? retainedFileCountLimit = FileLoggingConfiguration.DefaultRetainedFileCountLimit,
             string outputTemplate = FileLoggingConfiguration.DefaultOutputTemplate,
-            bool rollOnFileSizeLimit = true)
+            bool rollOnFileSizeLimit = true,
+            RollingInterval rollingInterval = RollingInterval.Day)
         {
-            var logger = CreateLogger(pathFormat, minimumLevel, levelOverrides, isJson, fileSizeLimitBytes, retainedFileCountLimit, outputTemplate, rollOnFileSizeLimit);
+            var logger = CreateLogger(pathFormat, minimumLevel, levelOverrides, isJson, fileSizeLimitBytes, retainedFileCountLimit, outputTemplate, rollOnFileSizeLimit, rollingInterval);
             return loggerFactory.AddSerilog(logger, dispose: true);
         }
 
@@ -114,6 +117,8 @@ namespace Microsoft.Extensions.Logging
         /// "{Timestamp:o} {RequestId,13} [{Level:u3}] {Message} ({EventId:x8}){NewLine}{Exception}"</param>
         /// <param name="rollOnFileSizeLimit">Create new log file when the size limit is reached.
         /// The default is true</param>
+        /// <param name="rollingInterval">Time interval for rolling file.
+        /// The default is RollingInterval.Day</param>
         /// <returns>The logging builder to allow further configuration.</returns>
         public static ILoggingBuilder AddFile(this ILoggingBuilder loggingBuilder,
             string pathFormat,
@@ -123,9 +128,10 @@ namespace Microsoft.Extensions.Logging
             long? fileSizeLimitBytes = FileLoggingConfiguration.DefaultFileSizeLimitBytes,
             int? retainedFileCountLimit = FileLoggingConfiguration.DefaultRetainedFileCountLimit,
             string outputTemplate = FileLoggingConfiguration.DefaultOutputTemplate,
-            bool rollOnFileSizeLimit = true)
+            bool rollOnFileSizeLimit = true,
+            RollingInterval rollingInterval = RollingInterval.Day)
         {
-            var logger = CreateLogger(pathFormat, minimumLevel, levelOverrides, isJson, fileSizeLimitBytes, retainedFileCountLimit, outputTemplate, rollOnFileSizeLimit);
+            var logger = CreateLogger(pathFormat, minimumLevel, levelOverrides, isJson, fileSizeLimitBytes, retainedFileCountLimit, outputTemplate, rollOnFileSizeLimit, rollingInterval);
 
             return loggingBuilder.AddSerilog(logger, dispose: true);
         }
@@ -137,7 +143,8 @@ namespace Microsoft.Extensions.Logging
             long? fileSizeLimitBytes,
             int? retainedFileCountLimit,
             string outputTemplate,
-            bool rollOnFileSizeLimit)
+            bool rollOnFileSizeLimit,
+            RollingInterval rollingInterval)
         {
             if (pathFormat == null) throw new ArgumentNullException(nameof(pathFormat));
 
@@ -156,6 +163,7 @@ namespace Microsoft.Extensions.Logging
                     fileSizeLimitBytes: fileSizeLimitBytes,
                     retainedFileCountLimit: retainedFileCountLimit,
                     rollOnFileSizeLimit: rollOnFileSizeLimit,
+                    rollingInterval: rollingInterval,
                     shared: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(2)));
 
