@@ -3,7 +3,7 @@ using Serilog.Events;
 
 namespace Serilog.Extensions.Logging.File
 {
-    static class Conversions
+    public static class Conversions
     {
         public static LogEventLevel MicrosoftToSerilogLevel(LogLevel logLevel)
         {

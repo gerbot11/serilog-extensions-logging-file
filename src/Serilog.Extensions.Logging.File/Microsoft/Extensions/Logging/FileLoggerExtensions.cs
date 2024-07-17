@@ -136,6 +136,38 @@ namespace Microsoft.Extensions.Logging
             return loggingBuilder.AddSerilog(logger, dispose: true);
         }
 
+        public static void SetFileLoggerConfiguration(
+            LoggerConfiguration loggerConfiguration,
+            string pathFormat,
+            bool isJson,
+            long? fileSizeLimitBytes,
+            int? retainedFileCountLimit,
+            bool rollOnFileSizeLimit,
+            RollingInterval rollingInterval)
+        {
+            if (pathFormat == null) throw new ArgumentNullException(nameof(pathFormat));
+            var formatter = isJson ?
+                (ITextFormatter)new RenderedCompactJsonFormatter() :
+                new MessageTemplateTextFormatter(FileLoggingConfiguration.DefaultOutputTemplate, null);
+            
+            loggerConfiguration
+                .Enrich.FromLogContext()
+                .WriteTo.Async(w => w.File(
+                    formatter,
+                    Environment.ExpandEnvironmentVariables(pathFormat),
+                    fileSizeLimitBytes: fileSizeLimitBytes,
+                    retainedFileCountLimit: retainedFileCountLimit,
+                    rollOnFileSizeLimit: rollOnFileSizeLimit,
+                    rollingInterval: rollingInterval,
+                    shared: true,
+                    flushToDiskInterval: TimeSpan.FromSeconds(2)));
+
+            if (!isJson)
+            {
+                loggerConfiguration.Enrich.With<EventIdEnricher>();
+            }
+        }
+
         private static Serilog.Core.Logger CreateLogger(string pathFormat,
             LogLevel minimumLevel,
             IDictionary<string, LogLevel> levelOverrides,
